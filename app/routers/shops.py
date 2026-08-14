@@ -31,6 +31,13 @@ def list_shops(
     return res.data
 
 
+@router.get("/mine", response_model=list[ShopOut])
+def list_my_shops(user: CurrentUser = Depends(get_current_user), client=Depends(get_scoped_client)):
+    """Shop owner: their own shop(s), verified or not — used to route into the owner dashboard."""
+    res = client.table("shops").select("*").eq("owner_id", user.id).execute()
+    return res.data
+
+
 @router.get("/nearby", response_model=list[NearbyShopOut])
 def nearby_shops(
     lat: float,

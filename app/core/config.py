@@ -9,7 +9,11 @@ class Settings(BaseSettings):
     supabase_url: str
     supabase_anon_key: str
     supabase_service_role_key: str
-    supabase_jwt_secret: str
+    # Only set for projects still on the legacy shared HS256 secret (Project
+    # Settings -> API -> JWT Keys -> "Legacy JWT Secret" tab). Projects on the
+    # newer asymmetric JWT Signing Keys don't have one — auth still works via
+    # JWKS verification (see app/core/security.py) without this being set.
+    supabase_jwt_secret: str = ""
 
     cors_origins: str = "http://localhost:3000"
     environment: str = "development"

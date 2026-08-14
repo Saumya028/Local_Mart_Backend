@@ -10,6 +10,21 @@ from app.models.product import ProductCreate, ProductOut, ProductUpdate, StockUp
 router = APIRouter(tags=["products"])
 
 
+@router.get("/shops/{shop_id}/products/mine", response_model=list[ProductOut])
+def list_my_shop_products(shop_id: UUID, client=Depends(get_scoped_client)):
+    """Shop owner: the full catalog for their shop, including inactive/out-of-stock
+    items the public storefront hides — used by the owner dashboard's Products tab.
+    RLS (products_owner_write) scopes this to shops the caller actually owns."""
+    res = (
+        client.table("products")
+        .select("*")
+        .eq("shop_id", str(shop_id))
+        .order("created_at", desc=True)
+        .execute()
+    )
+    return res.data
+
+
 @router.get("/shops/{shop_id}/products", response_model=list[ProductOut])
 def list_shop_products(
     shop_id: UUID,
@@ -46,19 +61,19 @@ def get_product(product_id: UUID):
 
 @router.get("/products", response_model=list[ProductOut])
 def search_products(
-    q: str = Query(..., min_length=1),
+    q: Optional[str] = Query(None, min_length=1),
     limit: int = Query(30, le=100),
 ):
-    """Public: search products across every shop — the Amazon-style search bar."""
+    """Public: search products across every shop — the Amazon-style search bar.
+    With no `q`, returns the most recently listed active products (used for
+    the homepage's "trending" strip)."""
     client = get_anon_client()
-    res = (
-        client.table("products")
-        .select("*")
-        .eq("is_active", True)
-        .ilike("name", f"%{q}%")
-        .limit(limit)
-        .execute()
-    )
+    query = client.table("products").select("*").eq("is_active", True)
+    if q:
+        query = query.ilike("name", f"%{q}%")
+    else:
+        query = query.order("created_at", desc=True)
+    res = query.limit(limit).execute()
     return res.data
 
 

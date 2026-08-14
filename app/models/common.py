@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 from uuid import UUID
 
@@ -41,3 +41,43 @@ class ProfileUpdate(BaseModel):
     full_name: Optional[str] = None
     phone: Optional[str] = None
     avatar_url: Optional[str] = None
+
+
+class DashboardSummaryOut(BaseModel):
+    today_revenue: float
+    today_orders: int
+    yesterday_revenue: float
+    yesterday_orders: int
+    pending_orders: int
+
+
+class RevenuePointOut(BaseModel):
+    day: date
+    revenue: float
+    order_count: int
+
+
+class TopProductOut(BaseModel):
+    product_id: UUID
+    product_name: str
+    qty_sold: int
+    revenue: float
+
+
+class ShopCustomerOut(BaseModel):
+    customer_id: UUID
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    order_count: int
+    total_spent: float
+    last_order_at: datetime
+
+
+class ReviewOut(BaseModel):
+    id: UUID
+    shop_id: UUID
+    customer_id: UUID
+    order_id: Optional[UUID] = None
+    rating: int
+    comment: Optional[str] = None
+    created_at: datetime

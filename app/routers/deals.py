@@ -28,6 +28,20 @@ def list_active_deals(limit: int = Query(20, le=100)):
     return res.data
 
 
+@router.get("/shops/{shop_id}/deals/mine", response_model=list[DealOut])
+def list_my_shop_deals(shop_id: UUID, client=Depends(get_scoped_client)):
+    """Shop owner: every deal on their shop, including ended/deactivated ones —
+    used by the owner dashboard's Promotions tab."""
+    res = (
+        client.table("deals")
+        .select("*")
+        .eq("shop_id", str(shop_id))
+        .order("starts_at", desc=True)
+        .execute()
+    )
+    return res.data
+
+
 @router.get("/shops/{shop_id}/deals", response_model=list[DealOut])
 def list_shop_deals(shop_id: UUID):
     """Public: a shop's active deals."""

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
-from app.routers import admin, addresses, categories, deals, orders, products, profile, shops
+from app.routers import admin, addresses, categories, dashboard, deals, orders, products, profile, reviews, shops
 
 settings = get_settings()
 
@@ -29,6 +29,8 @@ app.include_router(deals.router)
 app.include_router(addresses.router)
 app.include_router(orders.router)
 app.include_router(profile.router)
+app.include_router(dashboard.router)
+app.include_router(reviews.router)
 app.include_router(admin.router)
 
 
